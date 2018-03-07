@@ -601,9 +601,6 @@ class BitcoinFork(object):
             return witnesstx, plaintx
         
     def maketx_basicsig(self, sourcetx, sourceidx, sourceh160, signscript, sourcesatoshis, sourceprivkey, pubkey, compressed, outputs, fee, keytype):
-        if keytype in ("segwit", "segwitbech32"):
-            return self.maketx_segwitsig(sourcetx, sourceidx, sourceh160, signscript, sourcesatoshis, sourceprivkey, pubkey, compressed, outputs, fee, keytype)
-            
         verifytotal = fee
         
         version = struct.pack("<I", self.txversion)
@@ -626,6 +623,8 @@ class BitcoinFork(object):
         
         if keytype == "p2pk":
             sigblock = lengthprefixed(signature)
+        elif keytype == "segwit":
+            sigblock = lengthprefixed(signature) + lengthprefixed(serpubkey) + lengthprefixed("\x00\x14" + sourceh160)
         else:
             sigblock = lengthprefixed(signature) + lengthprefixed(serpubkey)
         
